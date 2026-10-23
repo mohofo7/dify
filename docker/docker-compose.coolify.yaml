@@ -1124,6 +1124,38 @@ services:
     volumes:
       - ./volumes/unstructured:/app/data
 
+  # Playwright MCP: headless browser the Dify test agent drives. No auth, so internal network only.
+  playwright_mcp:
+    image: mcr.microsoft.com/playwright/mcp:v0.0.83
+    restart: always
+    init: true
+    shm_size: "1gb"
+    entrypoint: ["node", "/app/cli.js"]
+    command:
+      - --headless
+      - --browser
+      - chromium
+      - --no-sandbox
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8931"
+      # Reached as playwright_mcp:8931 from inside the stack, never exposed.
+      - --allowed-hosts
+      - "*"
+      - --isolated
+      # Keep one browser across tool calls so pages survive between steps.
+      - --shared-browser-context
+      - --viewport-size
+      - 1440x900
+      - --timeout-action
+      - "15000"
+    environment:
+      # Semicolon-separated beta origins; compose refuses to start without it.
+      PLAYWRIGHT_MCP_ALLOWED_ORIGINS: ${BETA_ALLOWED_ORIGINS:?set BETA_ALLOWED_ORIGINS}
+    networks:
+      - default
+
 networks:
   # create a network between sandbox, api and ssrf_proxy, and can not access outside.
   ssrf_proxy_network:
