@@ -1150,9 +1150,6 @@ services:
       - 1440x900
       - --timeout-action
       - "15000"
-    environment:
-      # Semicolon-separated beta origins; compose refuses to start without it.
-      PLAYWRIGHT_MCP_ALLOWED_ORIGINS: ${BETA_ALLOWED_ORIGINS:?set BETA_ALLOWED_ORIGINS}
     networks:
       - default
 
